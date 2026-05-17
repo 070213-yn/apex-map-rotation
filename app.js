@@ -97,6 +97,12 @@ function fmtDayKey(ms) {
   return `${p.year}-${pad2(p.month)}-${pad2(p.day)}`;
 }
 
+// 指定タイムスタンプを含む日のJST 00:00 のUTCタイムスタンプ
+function jstMidnightUtcOf(ms) {
+  const p = jstParts(ms);
+  return Date.UTC(p.year, p.month - 1, p.day, 0, 0, 0) - 9 * 60 * 60 * 1000;
+}
+
 function fmtDayLabel(ms) {
   const p = jstParts(ms);
   return { date: `${p.month}/${p.day}`, weekday: p.weekday };
@@ -355,11 +361,23 @@ function renderDayNav(slots) {
 function renderSchedule(slots) {
   const startSlot = slots[0];
 
+  // 日跨ぎスロットを両日に振り分ける
   const groups = new Map();
-  for (const slot of slots) {
-    const key = fmtDayKey(slot.start);
+  const addEntry = (key, entry) => {
     if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(slot);
+    groups.get(key).push(entry);
+  };
+  for (const slot of slots) {
+    const startKey = fmtDayKey(slot.start);
+    const endKey = fmtDayKey(slot.end - 1); // end ぴったり 00:00 を前日扱いに
+    if (startKey === endKey) {
+      addEntry(startKey, { slot, displayStart: slot.start, displayEnd: slot.end, continued: false });
+    } else {
+      const midnight = jstMidnightUtcOf(slot.end);
+      // 当日 (start 〜 翌00:00) と 翌日 (00:00 〜 end) の2エントリ
+      addEntry(startKey, { slot, displayStart: slot.start, displayEnd: midnight, continued: false, splits: true });
+      addEntry(endKey,   { slot, displayStart: midnight,    displayEnd: slot.end, continued: true });
+    }
   }
 
   const schedule = document.getElementById("schedule");
@@ -372,7 +390,7 @@ function renderSchedule(slots) {
 
     const head = document.createElement("div");
     head.className = "day-heading";
-    const label = fmtDayLabel(list[0].start);
+    const label = fmtDayLabel(list[0].displayStart);
     const dateEl = document.createElement("span");
     dateEl.className = "day-date";
     dateEl.textContent = label.date;
@@ -388,10 +406,12 @@ function renderSchedule(slots) {
     const grid = document.createElement("div");
     grid.className = "slot-grid";
 
-    for (const slot of list) {
+    for (const entry of list) {
+      const { slot, displayStart, displayEnd, continued } = entry;
       const el = document.createElement("div");
       el.className = `slot map-${slot.map.id}`;
       el.dataset.mapId = slot.map.id;
+      if (continued) el.classList.add("continued");
       if (slot.idx === startSlot.idx) el.classList.add("now");
 
       const thumb = document.createElement("div");
@@ -402,10 +422,10 @@ function renderSchedule(slots) {
       body.className = "slot-body";
       const time = document.createElement("div");
       time.className = "slot-time";
-      time.textContent = `${fmtTime(slot.start)} 〜 ${fmtTime(slot.end)}`;
+      time.textContent = `${fmtTime(displayStart)} 〜 ${fmtTime(displayEnd)}`;
       const name = document.createElement("div");
       name.className = "slot-map";
-      name.textContent = slot.map.name;
+      name.textContent = slot.map.name + (continued ? "（前日からの続き）" : "");
       body.appendChild(time);
       body.appendChild(name);
 
