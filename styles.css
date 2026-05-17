@@ -388,45 +388,69 @@ main {
 }
 
 .slot {
-  display: grid;
-  grid-template-columns: 64px 1fr;
+  position: relative;
+  display: flex;
   align-items: center;
-  background: var(--bg-2);
+  background-color: var(--bg-2);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid var(--border);
   border-left-width: 4px;
   border-radius: 8px;
   overflow: hidden;
-  transition: transform .15s, background .15s, opacity .15s;
+  min-height: 76px;
+  padding: 12px 18px;
+  transition: transform .15s, opacity .15s;
 }
-.slot:hover { transform: translateY(-1px); background: var(--bg-3); }
+.slot:hover { transform: translateY(-1px); }
 
-.slot-thumb {
-  width: 64px;
-  height: 64px;
-  background-size: cover;
-  background-position: center;
+/* 右側に向かって暗くする（背景画像が薄れる効果） */
+.slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(10,10,15,0.30) 0%,
+    rgba(10,10,15,0.50) 35%,
+    rgba(10,10,15,0.85) 75%,
+    rgba(10,10,15,0.95) 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .slot-body {
-  padding: 8px 12px;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 .slot-time {
   font-family: "Orbitron", sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--text);
+  color: #ffffff;
   font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 1px 4px rgba(0,0,0,0.95),
+    0 0 8px rgba(0,0,0,0.75),
+    0 0 2px rgba(0,0,0,1);
 }
 .slot-map {
+  font-family: "Orbitron", sans-serif;
   font-size: 13px;
-  color: var(--text-dim);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #e8e8f0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-shadow:
+    0 1px 3px rgba(0,0,0,0.95),
+    0 0 6px rgba(0,0,0,0.75),
+    0 0 2px rgba(0,0,0,1);
 }
 
 .slot.map-broken_moon  { border-left-color: var(--broken-moon); }

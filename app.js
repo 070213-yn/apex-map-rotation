@@ -9,9 +9,9 @@ const HORIZON_MS = 7 * 24 * 60 * 60 * 1000;       // 1週間
 const FILTER_KEY = "apex_map_filter_v1";
 
 const MAPS = [
-  { id: "broken_moon",  name: "ブロークンムーン",   image: "images/broken_moon.jpg" },
-  { id: "kings_canyon", name: "キングスキャニオン", image: "images/kings_canyon.jpg" },
-  { id: "olympus",      name: "オリンパス",         image: "images/olympus.jpg" },
+  { id: "broken_moon",  name: "Broken Moon",   image: "images/broken_moon.jpg" },
+  { id: "kings_canyon", name: "Kings Canyon",  image: "images/kings_canyon.jpg" },
+  { id: "olympus",      name: "Olympus",       image: "images/olympus.jpg" },
 ];
 
 // --- フィルタ状態 ---
@@ -149,9 +149,9 @@ function updateFavicon(mapId) {
     olympus: "#c77dff",
   };
   const letters = {
-    broken_moon: "ブ",
-    kings_canyon: "キ",
-    olympus: "オ",
+    broken_moon: "B",
+    kings_canyon: "K",
+    olympus: "O",
   };
   const size = 64;
   const c = document.createElement("canvas");
@@ -372,11 +372,8 @@ function renderSchedule(slots) {
       const el = document.createElement("div");
       el.className = `slot map-${slot.map.id}`;
       el.dataset.mapId = slot.map.id;
+      el.style.backgroundImage = `url("${slot.map.image}")`;
       if (slot.idx === startSlot.idx) el.classList.add("now");
-
-      const thumb = document.createElement("div");
-      thumb.className = "slot-thumb";
-      thumb.style.backgroundImage = `url("${slot.map.image}")`;
 
       const body = document.createElement("div");
       body.className = "slot-body";
@@ -389,7 +386,6 @@ function renderSchedule(slots) {
       body.appendChild(time);
       body.appendChild(name);
 
-      el.appendChild(thumb);
       el.appendChild(body);
       grid.appendChild(el);
     }
