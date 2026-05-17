@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#0a0a0f" />
 <title>Apex ランクマップローテーション早見表</title>
-<meta name="description" content="現在時刻から3日後までのApex Legendsランクマップローテーションを自動表示します。" />
+<meta name="description" content="現在時刻から1週間後までのApex Legendsランクマップローテーションを自動表示します。マップ別フィルタ・カウントダウン機能つき。" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -17,7 +17,7 @@
       <span class="brand-mark"></span>
       <h1>APEX <span class="accent">MAP ROTATION</span></h1>
     </div>
-    <p class="tagline">ランクマップローテーション早見表 / 今から3日後まで自動表示</p>
+    <p class="tagline">ランクマップローテーション早見表 / 今から1週間先まで自動表示</p>
   </header>
 
   <main>
@@ -39,14 +39,20 @@
       </div>
     </section>
 
-    <!-- 凡例 -->
-    <section class="legend">
-      <div class="legend-item map-broken_moon"><span class="dot"></span>ブロークンムーン</div>
-      <div class="legend-item map-kings_canyon"><span class="dot"></span>キングスキャニオン</div>
-      <div class="legend-item map-olympus"><span class="dot"></span>オリンパス</div>
+    <!-- 次の各マップまで -->
+    <section class="next-each" id="next-each"></section>
+
+    <!-- フィルタ & 凡例 -->
+    <section class="filter-bar">
+      <span class="filter-label">マップで絞り込み:</span>
+      <div class="legend" id="legend"></div>
+      <button class="filter-reset" id="filter-reset" type="button">すべて表示</button>
     </section>
 
-    <!-- 3日間スケジュール -->
+    <!-- 日付ジャンプ -->
+    <nav class="day-nav" id="day-nav" aria-label="日付ジャンプ"></nav>
+
+    <!-- 1週間スケジュール -->
     <section class="schedule" id="schedule"></section>
 
     <p class="note">

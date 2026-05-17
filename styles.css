@@ -23,6 +23,7 @@ html, body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+html { scroll-behavior: smooth; }
 
 body {
   background:
@@ -85,7 +86,7 @@ main {
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   transition: border-color .3s;
 }
@@ -178,41 +179,155 @@ main {
 }
 .next-name { color: var(--text); font-weight: 700; }
 
-/* マップ別のカラーバー */
 .current-card.map-broken_moon  { border-color: var(--broken-moon); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(93,216,255,.2); }
 .current-card.map-kings_canyon { border-color: var(--kings-canyon); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.2); }
 .current-card.map-olympus      { border-color: var(--olympus); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.2); }
 
-/* ===== 凡例 ===== */
+/* ===== 次の各マップ ===== */
+.next-each {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.next-each-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.next-each-card.map-broken_moon  { border-left-color: var(--broken-moon); }
+.next-each-card.map-kings_canyon { border-left-color: var(--kings-canyon); }
+.next-each-card.map-olympus      { border-left-color: var(--olympus); }
+
+.next-each-card.live {
+  background: linear-gradient(90deg, rgba(255,70,85,.10), var(--bg-2));
+  border-color: var(--accent);
+}
+.next-each-name {
+  font-family: "Orbitron", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.next-each-time {
+  font-family: "Orbitron", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+}
+.next-each-card.live .next-each-time { color: var(--accent); }
+.next-each-when {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== フィルタバー ===== */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.filter-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: .05em;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-bottom: 18px;
-  justify-content: center;
+  gap: 8px;
 }
 .legend-item {
+  cursor: pointer;
+  user-select: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--text-dim);
-  padding: 4px 12px;
-  background: var(--bg-2);
+  color: var(--text);
+  padding: 6px 12px;
+  background: var(--bg-3);
   border: 1px solid var(--border);
   border-radius: 999px;
+  transition: all .15s;
+}
+.legend-item:hover { background: #25253a; }
+.legend-item.off {
+  opacity: .35;
+  color: var(--text-dim);
 }
 .legend-item .dot {
   width: 10px; height: 10px; border-radius: 50%;
 }
+.legend-item .hours {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: 2px;
+  font-variant-numeric: tabular-nums;
+}
 .legend-item.map-broken_moon  .dot { background: var(--broken-moon); box-shadow: 0 0 6px var(--broken-moon); }
 .legend-item.map-kings_canyon .dot { background: var(--kings-canyon); box-shadow: 0 0 6px var(--kings-canyon); }
 .legend-item.map-olympus      .dot { background: var(--olympus);      box-shadow: 0 0 6px var(--olympus); }
+.legend-item.off .dot { box-shadow: none; }
+
+.filter-reset {
+  margin-left: auto;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: all .15s;
+  font-family: inherit;
+}
+.filter-reset:hover { color: var(--text); border-color: var(--accent); }
+
+/* ===== 日付ジャンプナビ ===== */
+.day-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+  padding-bottom: 6px;
+  overflow-x: auto;
+}
+.day-nav a {
+  font-family: "Orbitron", sans-serif;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.day-nav a:hover, .day-nav a.today {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.day-nav a.today { background: rgba(255,70,85,.15); }
 
 /* ===== スケジュール ===== */
 .schedule { display: flex; flex-direction: column; gap: 22px; }
 
-.day-block { }
+.day-block { scroll-margin-top: 12px; }
 
 .day-heading {
   display: flex;
@@ -250,7 +365,7 @@ main {
   border-left-width: 4px;
   border-radius: 8px;
   overflow: hidden;
-  transition: transform .15s, background .15s;
+  transition: transform .15s, background .15s, opacity .15s;
 }
 .slot:hover { transform: translateY(-1px); background: var(--bg-3); }
 
@@ -283,12 +398,10 @@ main {
   white-space: nowrap;
 }
 
-/* マップ別 ボーダー色 */
 .slot.map-broken_moon  { border-left-color: var(--broken-moon); }
 .slot.map-kings_canyon { border-left-color: var(--kings-canyon); }
 .slot.map-olympus      { border-left-color: var(--olympus); }
 
-/* 現在進行中スロット */
 .slot.now {
   background: linear-gradient(90deg, rgba(255,70,85,.1), transparent);
   border-color: var(--accent);
@@ -306,7 +419,21 @@ main {
   50% { opacity: .35; }
 }
 
-/* 過去（カウントダウン中の現在スロットより前の時間は表示しない方針） */
+/* フィルタで除外されたスロットは薄く小さく */
+.slot.filtered-out {
+  opacity: .25;
+  filter: grayscale(0.6);
+}
+
+.empty-day {
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: 12px;
+  text-align: center;
+  background: var(--bg-2);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
 
 .note {
   margin-top: 32px;

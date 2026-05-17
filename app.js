@@ -1,10 +1,12 @@
 // Apex マップローテーション計算 & 表示
 // 規則: 4時間30分ごとに ブロークンムーン → キングスキャニオン → オリンパス の順でループ
-// 起点: 2026-05-11 17:00 JST = ブロークンムーン（提示された表より）
+// 起点: 2026-05-11 17:00 JST = ブロークンムーン
 
 // --- 定数 ---
 const ANCHOR_UTC = Date.UTC(2026, 4, 11, 8, 0, 0); // 2026-05-11 17:00 JST = 08:00 UTC
-const SLOT_MS = 4.5 * 60 * 60 * 1000;              // 4時間30分
+const SLOT_MS = 4.5 * 60 * 60 * 1000;
+const HORIZON_MS = 7 * 24 * 60 * 60 * 1000;       // 1週間
+const FILTER_KEY = "apex_map_filter_v1";
 
 const MAPS = [
   { id: "broken_moon",  name: "ブロークンムーン",   image: "images/broken_moon.jpg" },
@@ -12,7 +14,24 @@ const MAPS = [
   { id: "olympus",      name: "オリンパス",         image: "images/olympus.jpg" },
 ];
 
-const WEEKDAY_JP = ["日", "月", "火", "水", "木", "金", "土"];
+// --- フィルタ状態 ---
+let activeFilter = loadFilter(); // Set<mapId>
+
+function loadFilter() {
+  try {
+    const raw = localStorage.getItem(FILTER_KEY);
+    if (!raw) return new Set(MAPS.map(m => m.id));
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr) || arr.length === 0) return new Set(MAPS.map(m => m.id));
+    return new Set(arr.filter(id => MAPS.some(m => m.id === id)));
+  } catch {
+    return new Set(MAPS.map(m => m.id));
+  }
+}
+
+function saveFilter() {
+  try { localStorage.setItem(FILTER_KEY, JSON.stringify([...activeFilter])); } catch {}
+}
 
 // --- スロット計算 ---
 function slotForTime(t) {
@@ -24,16 +43,26 @@ function slotForTime(t) {
 }
 
 function nextSlot(slot) {
+  const idx = slot.idx + 1;
   const start = slot.end;
   const end = start + SLOT_MS;
-  const idx = slot.idx + 1;
   const map = MAPS[((idx % MAPS.length) + MAPS.length) % MAPS.length];
   return { idx, start, end, map };
 }
 
+function buildSlots(now, horizonMs) {
+  const horizon = now + horizonMs;
+  const out = [];
+  let s = slotForTime(now);
+  while (s.start < horizon) {
+    out.push(s);
+    s = nextSlot(s);
+  }
+  return out;
+}
+
 // --- JST 表示用ヘルパー ---
 function jstParts(ms) {
-  // Asia/Tokyo の年月日時分曜日を取得
   const fmt = new Intl.DateTimeFormat("ja-JP", {
     timeZone: "Asia/Tokyo",
     year: "numeric", month: "2-digit", day: "2-digit",
@@ -45,7 +74,6 @@ function jstParts(ms) {
   for (const p of fmt.formatToParts(new Date(ms))) {
     if (p.type !== "literal") parts[p.type] = p.value;
   }
-  // 「24:00」表記の補正（Intlは "24" を返さないので不要）
   return {
     year: parseInt(parts.year, 10),
     month: parseInt(parts.month, 10),
@@ -53,18 +81,20 @@ function jstParts(ms) {
     hour: parseInt(parts.hour, 10) % 24,
     minute: parseInt(parts.minute, 10),
     second: parseInt(parts.second, 10),
-    weekday: parts.weekday, // "月" など
+    weekday: parts.weekday,
   };
 }
 
+const pad2 = n => String(n).padStart(2, "0");
+
 function fmtTime(ms) {
   const p = jstParts(ms);
-  return `${String(p.hour).padStart(2, "0")}:${String(p.minute).padStart(2, "0")}`;
+  return `${pad2(p.hour)}:${pad2(p.minute)}`;
 }
 
 function fmtDayKey(ms) {
   const p = jstParts(ms);
-  return `${p.year}-${String(p.month).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
+  return `${p.year}-${pad2(p.month)}-${pad2(p.day)}`;
 }
 
 function fmtDayLabel(ms) {
@@ -78,7 +108,17 @@ function fmtCountdown(ms) {
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+}
+
+function fmtHoursMinutes(ms) {
+  if (ms < 0) ms = 0;
+  const total = Math.floor(ms / 60000);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h === 0) return `${m}分後`;
+  if (m === 0) return `${h}時間後`;
+  return `${h}時間${m}分後`;
 }
 
 // --- レンダリング ---
@@ -87,7 +127,6 @@ function renderCurrent(now) {
   const nxt = nextSlot(cur);
 
   const card = document.getElementById("current-card");
-  // マップ別クラス切り替え
   card.classList.remove("map-broken_moon", "map-kings_canyon", "map-olympus");
   card.classList.add(`map-${cur.map.id}`);
 
@@ -96,6 +135,9 @@ function renderCurrent(now) {
   document.getElementById("current-time").textContent =
     `${fmtTime(cur.start)} 〜 ${fmtTime(cur.end)} (JST)`;
   document.getElementById("next-name").textContent = nxt.map.name;
+
+  // タブタイトルにも反映
+  document.title = `${cur.map.name} | Apex ローテ早見表`;
 }
 
 function renderCountdown(now) {
@@ -103,18 +145,141 @@ function renderCountdown(now) {
   document.getElementById("countdown").textContent = fmtCountdown(cur.end - now);
 }
 
-function renderSchedule(now) {
-  const horizon = now + 72 * 60 * 60 * 1000; // 3日後まで
-  const startSlot = slotForTime(now);
-  const slots = [];
-  let s = startSlot;
-  // 現在スロットを含み、開始時刻が horizon を超えるまで
-  while (s.start < horizon) {
-    slots.push(s);
+// 次の各マップまでの登場時間を計算
+function findNextOccurrenceForEach(now) {
+  const cur = slotForTime(now);
+  const result = {};
+  // 現在マップは LIVE 扱い
+  result[cur.map.id] = { slot: cur, isLive: true };
+  // 残り2マップを未来から探す
+  let s = nextSlot(cur);
+  while (Object.keys(result).length < MAPS.length) {
+    if (!result[s.map.id]) {
+      result[s.map.id] = { slot: s, isLive: false };
+    }
     s = nextSlot(s);
   }
+  return result;
+}
 
-  // 日付ごとにグループ化（JSTの日付で）
+function renderNextEach(now) {
+  const occ = findNextOccurrenceForEach(now);
+  const container = document.getElementById("next-each");
+  container.innerHTML = "";
+  for (const m of MAPS) {
+    const info = occ[m.id];
+    const card = document.createElement("div");
+    card.className = `next-each-card map-${m.id}` + (info.isLive ? " live" : "");
+
+    const name = document.createElement("div");
+    name.className = "next-each-name";
+    name.textContent = m.name;
+
+    const time = document.createElement("div");
+    time.className = "next-each-time";
+    if (info.isLive) {
+      time.textContent = `LIVE (残 ${fmtCountdown(info.slot.end - now)})`;
+    } else {
+      time.textContent = fmtHoursMinutes(info.slot.start - now);
+    }
+
+    const when = document.createElement("div");
+    when.className = "next-each-when";
+    const startLabel = fmtDayLabel(info.slot.start);
+    when.textContent = info.isLive
+      ? `〜 ${fmtTime(info.slot.end)}`
+      : `${startLabel.date}(${startLabel.weekday}) ${fmtTime(info.slot.start)} 〜 ${fmtTime(info.slot.end)}`;
+
+    card.appendChild(name);
+    card.appendChild(time);
+    card.appendChild(when);
+    container.appendChild(card);
+  }
+}
+
+// 凡例（フィルタUI）。マップごとの合計時間もここに表示
+function renderLegend(slots) {
+  const totals = {};
+  for (const m of MAPS) totals[m.id] = 0;
+  for (const s of slots) totals[s.map.id] += SLOT_MS;
+
+  const legend = document.getElementById("legend");
+  legend.innerHTML = "";
+  for (const m of MAPS) {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = `legend-item map-${m.id}` + (activeFilter.has(m.id) ? "" : " off");
+    item.dataset.mapId = m.id;
+    item.setAttribute("aria-pressed", activeFilter.has(m.id) ? "true" : "false");
+
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    const label = document.createElement("span");
+    label.textContent = m.name;
+    const hours = document.createElement("span");
+    hours.className = "hours";
+    const h = Math.round(totals[m.id] / 3600000 * 10) / 10;
+    hours.textContent = `(${h}h)`;
+
+    item.appendChild(dot);
+    item.appendChild(label);
+    item.appendChild(hours);
+
+    item.addEventListener("click", () => {
+      if (activeFilter.has(m.id)) {
+        if (activeFilter.size > 1) activeFilter.delete(m.id);
+        else { // 1つだけの時にOFFにされた → 全選択に戻す
+          activeFilter = new Set(MAPS.map(x => x.id));
+        }
+      } else {
+        activeFilter.add(m.id);
+      }
+      saveFilter();
+      renderLegend(slots);
+      applyFilterClasses();
+    });
+
+    legend.appendChild(item);
+  }
+}
+
+function applyFilterClasses() {
+  const allSelected = activeFilter.size === MAPS.length;
+  document.querySelectorAll(".slot").forEach(el => {
+    const id = el.dataset.mapId;
+    if (allSelected || activeFilter.has(id)) {
+      el.classList.remove("filtered-out");
+    } else {
+      el.classList.add("filtered-out");
+    }
+  });
+}
+
+function renderDayNav(slots) {
+  const days = [];
+  const seen = new Set();
+  for (const s of slots) {
+    const key = fmtDayKey(s.start);
+    if (!seen.has(key)) {
+      seen.add(key);
+      days.push({ key, label: fmtDayLabel(s.start) });
+    }
+  }
+  const nav = document.getElementById("day-nav");
+  nav.innerHTML = "";
+  const todayKey = fmtDayKey(Date.now());
+  for (const d of days) {
+    const a = document.createElement("a");
+    a.href = `#day-${d.key}`;
+    a.textContent = `${d.label.date}(${d.label.weekday})`;
+    if (d.key === todayKey) a.classList.add("today");
+    nav.appendChild(a);
+  }
+}
+
+function renderSchedule(slots) {
+  const startSlot = slots[0];
+
   const groups = new Map();
   for (const slot of slots) {
     const key = fmtDayKey(slot.start);
@@ -128,6 +293,7 @@ function renderSchedule(now) {
   for (const [key, list] of groups) {
     const block = document.createElement("section");
     block.className = "day-block";
+    block.id = `day-${key}`;
 
     const head = document.createElement("div");
     head.className = "day-heading";
@@ -150,6 +316,7 @@ function renderSchedule(now) {
     for (const slot of list) {
       const el = document.createElement("div");
       el.className = `slot map-${slot.map.id}`;
+      el.dataset.mapId = slot.map.id;
       if (slot.idx === startSlot.idx) el.classList.add("now");
 
       const thumb = document.createElement("div");
@@ -175,28 +342,51 @@ function renderSchedule(now) {
     block.appendChild(grid);
     schedule.appendChild(block);
   }
+  applyFilterClasses();
 }
 
 // --- 駆動 ---
+function fullRender(now) {
+  const slots = buildSlots(now, HORIZON_MS);
+  renderCurrent(now);
+  renderNextEach(now);
+  renderLegend(slots);
+  renderDayNav(slots);
+  renderSchedule(slots);
+}
+
 function tick() {
   const now = Date.now();
   renderCountdown(now);
-  // スロットが切り替わったタイミングで全体を再描画
   const cur = slotForTime(now);
   if (window.__lastSlotIdx !== cur.idx) {
     window.__lastSlotIdx = cur.idx;
-    renderCurrent(now);
-    renderSchedule(now);
+    fullRender(now);
+  } else {
+    // 1分ごとに「次の各マップ」のカウントダウンも更新
+    if (Date.now() - (window.__lastNextEachUpdate || 0) > 30000) {
+      window.__lastNextEachUpdate = Date.now();
+      renderNextEach(now);
+    }
   }
 }
 
-// 初回描画
+// 初期化
 (function init() {
   const now = Date.now();
   window.__lastSlotIdx = slotForTime(now).idx;
-  renderCurrent(now);
-  renderSchedule(now);
+  window.__lastNextEachUpdate = Date.now();
+  fullRender(now);
   renderCountdown(now);
-  // カウントダウンは毎秒
+
+  // フィルタリセットボタン
+  document.getElementById("filter-reset").addEventListener("click", () => {
+    activeFilter = new Set(MAPS.map(m => m.id));
+    saveFilter();
+    const slots = buildSlots(Date.now(), HORIZON_MS);
+    renderLegend(slots);
+    applyFilterClasses();
+  });
+
   setInterval(tick, 1000);
 })();
