@@ -31,6 +31,26 @@ body {
     radial-gradient(ellipse at bottom right, rgba(199, 125, 255, 0.05), transparent 50%),
     var(--bg);
   background-attachment: fixed;
+  position: relative;
+}
+
+/* Season29 背景画像（薄く） */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url("images/season29-bg.jpg") center top / cover no-repeat;
+  opacity: 0.12;
+  z-index: -1;
+  pointer-events: none;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10,10,15,0.4) 0%, rgba(10,10,15,0.85) 70%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* ===== ヘッダー ===== */
@@ -63,6 +83,16 @@ body {
 }
 
 .accent { color: var(--accent); text-shadow: 0 0 12px rgba(255, 70, 85, 0.4); }
+
+.site-header h1 .season {
+  font-size: 0.5em;
+  color: var(--accent-2);
+  letter-spacing: 0.15em;
+  margin-left: 6px;
+  font-weight: 700;
+  vertical-align: middle;
+  text-shadow: 0 0 8px rgba(255, 176, 0, 0.35);
+}
 
 .tagline {
   color: var(--text-dim);
