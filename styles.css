@@ -856,6 +856,95 @@ footer {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== スマホ最適化 ===== */
+@media (max-width: 640px) {
+  .site-header {
+    padding: 16px 12px 12px;
+  }
+  .brand { gap: 10px; }
+  .brand-mark { width: 10px; height: 26px; }
+
+  .site-header h1 {
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    line-height: 1.15;
+  }
+  .site-header h1 .season {
+    display: block;
+    font-size: 0.55em;
+    margin: 4px 0 0 0;
+    letter-spacing: 0.18em;
+  }
+
+  main {
+    padding: 14px 10px 40px;
+  }
+
+  /* 現在マップカード: 画像とテキストを縦並びに（既存のグリッド設定）、内側余白を圧縮 */
+  .current-card { margin-bottom: 14px; }
+  .current-image { min-height: 160px; }
+  .current-info { padding: 16px 16px 18px; gap: 8px; }
+  .current-name { font-size: 28px; }
+  .countdown-wrap { padding-top: 8px; gap: 8px; }
+  .countdown { font-size: 22px; }
+  .next-line { font-size: 13px; }
+
+  .share-row { margin-top: 10px; gap: 6px; }
+  .share-btn { padding: 7px 11px; font-size: 11px; }
+
+  /* 次の各マップカード: 3列 → 1列 */
+  .next-each {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .next-each-card { padding: 10px 12px; }
+
+  /* フィルタバー: 縦に整理 */
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+  .filter-label { font-size: 11px; }
+  .legend { justify-content: center; }
+  .legend-item {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  .legend-item .hours { font-size: 10px; }
+  .filter-reset {
+    margin-left: 0;
+    align-self: center;
+    padding: 5px 14px;
+  }
+
+  /* スケジュール: スロットカードを1列、余白圧縮 */
+  .schedule { gap: 16px; }
+  .slot-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .slot {
+    min-height: 64px;
+    padding: 10px 14px;
+  }
+  .slot-time { font-size: 14px; }
+  .slot-map { font-size: 12px; }
+  .day-date { font-size: 16px; }
+  .day-weekday { font-size: 12px; }
+
+  .note { font-size: 11px; }
+}
+
+/* ===== さらに小さい画面用 (iPhone SE等 ≤375px) ===== */
+@media (max-width: 380px) {
+  .site-header h1 { font-size: 19px; letter-spacing: 0.06em; }
+  .current-name { font-size: 24px; }
+  .countdown { font-size: 19px; }
+}
+
 /* ===== prefers-reduced-motion ===== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
