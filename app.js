@@ -8,10 +8,11 @@ const SLOT_MS = 4.5 * 60 * 60 * 1000;
 const HORIZON_MS = 7 * 24 * 60 * 60 * 1000;       // 1週間
 const FILTER_KEY = "apex_map_filter_v1";
 
+const IMG_VER = "s29b"; // 画像差し替え時にここを変えるとキャッシュバスト
 const MAPS = [
-  { id: "broken_moon",  name: "Broken Moon",   image: "images/broken_moon.jpg" },
-  { id: "kings_canyon", name: "Kings Canyon",  image: "images/kings_canyon.jpg" },
-  { id: "olympus",      name: "Olympus",       image: "images/olympus.jpg" },
+  { id: "broken_moon",  name: "Broken Moon",   image: `images/broken_moon.jpg?v=${IMG_VER}` },
+  { id: "kings_canyon", name: "Kings Canyon",  image: `images/kings_canyon.jpg?v=${IMG_VER}` },
+  { id: "olympus",      name: "Olympus",       image: `images/olympus.jpg?v=${IMG_VER}` },
 ];
 
 // --- フィルタ状態 ---

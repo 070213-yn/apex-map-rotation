@@ -39,7 +39,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: url("images/season29-bg.jpg") center top / cover no-repeat;
+  background: url("images/season29-bg.jpg?v=s29b") center top / cover no-repeat;
   opacity: 0.12;
   z-index: -1;
   pointer-events: none;
