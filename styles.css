@@ -452,20 +452,6 @@ main {
   filter: grayscale(0.6);
 }
 
-/* 前日から続いているスロット */
-.slot.continued .slot-map {
-  font-size: 11px;
-  color: var(--text-dim);
-}
-.slot.continued::before {
-  content: "↩";
-  position: absolute;
-  top: 4px; right: 6px;
-  font-size: 11px;
-  color: var(--text-dim);
-}
-.slot { position: relative; }
-
 .empty-day {
   font-size: 13px;
   color: var(--text-dim);

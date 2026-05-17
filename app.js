@@ -97,12 +97,6 @@ function fmtDayKey(ms) {
   return `${p.year}-${pad2(p.month)}-${pad2(p.day)}`;
 }
 
-// 指定タイムスタンプを含む日のJST 00:00 のUTCタイムスタンプ
-function jstMidnightUtcOf(ms) {
-  const p = jstParts(ms);
-  return Date.UTC(p.year, p.month - 1, p.day, 0, 0, 0) - 9 * 60 * 60 * 1000;
-}
-
 function fmtDayLabel(ms) {
   const p = jstParts(ms);
   return { date: `${p.month}/${p.day}`, weekday: p.weekday };
@@ -325,10 +319,12 @@ function renderLegend(slots) {
 
 function applyFilterClasses() {
   // 全選択 = 絞り込みなし扱い。全OFFは「全部薄く」表示
+  // ただし現在LIVEのスロットはフィルタの影響を受けず常に明るく表示
   const allSelected = activeFilter.size === MAPS.length;
   document.querySelectorAll(".slot").forEach(el => {
     const id = el.dataset.mapId;
-    if (allSelected || activeFilter.has(id)) {
+    const isNow = el.classList.contains("now");
+    if (isNow || allSelected || activeFilter.has(id)) {
       el.classList.remove("filtered-out");
     } else {
       el.classList.add("filtered-out");
@@ -361,23 +357,11 @@ function renderDayNav(slots) {
 function renderSchedule(slots) {
   const startSlot = slots[0];
 
-  // 日跨ぎスロットを両日に振り分ける
   const groups = new Map();
-  const addEntry = (key, entry) => {
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(entry);
-  };
   for (const slot of slots) {
-    const startKey = fmtDayKey(slot.start);
-    const endKey = fmtDayKey(slot.end - 1); // end ぴったり 00:00 を前日扱いに
-    if (startKey === endKey) {
-      addEntry(startKey, { slot, displayStart: slot.start, displayEnd: slot.end, continued: false });
-    } else {
-      const midnight = jstMidnightUtcOf(slot.end);
-      // 当日 (start 〜 翌00:00) と 翌日 (00:00 〜 end) の2エントリ
-      addEntry(startKey, { slot, displayStart: slot.start, displayEnd: midnight, continued: false, splits: true });
-      addEntry(endKey,   { slot, displayStart: midnight,    displayEnd: slot.end, continued: true });
-    }
+    const key = fmtDayKey(slot.start);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(slot);
   }
 
   const schedule = document.getElementById("schedule");
@@ -390,7 +374,7 @@ function renderSchedule(slots) {
 
     const head = document.createElement("div");
     head.className = "day-heading";
-    const label = fmtDayLabel(list[0].displayStart);
+    const label = fmtDayLabel(list[0].start);
     const dateEl = document.createElement("span");
     dateEl.className = "day-date";
     dateEl.textContent = label.date;
@@ -406,12 +390,10 @@ function renderSchedule(slots) {
     const grid = document.createElement("div");
     grid.className = "slot-grid";
 
-    for (const entry of list) {
-      const { slot, displayStart, displayEnd, continued } = entry;
+    for (const slot of list) {
       const el = document.createElement("div");
       el.className = `slot map-${slot.map.id}`;
       el.dataset.mapId = slot.map.id;
-      if (continued) el.classList.add("continued");
       if (slot.idx === startSlot.idx) el.classList.add("now");
 
       const thumb = document.createElement("div");
@@ -422,10 +404,10 @@ function renderSchedule(slots) {
       body.className = "slot-body";
       const time = document.createElement("div");
       time.className = "slot-time";
-      time.textContent = `${fmtTime(displayStart)} 〜 ${fmtTime(displayEnd)}`;
+      time.textContent = `${fmtTime(slot.start)} 〜 ${fmtTime(slot.end)}`;
       const name = document.createElement("div");
       name.className = "slot-map";
-      name.textContent = slot.map.name + (continued ? "（前日からの続き）" : "");
+      name.textContent = slot.map.name;
       body.appendChild(time);
       body.appendChild(name);
 
