@@ -183,6 +183,33 @@ main {
 .current-card.map-kings_canyon { border-color: var(--kings-canyon); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.2); }
 .current-card.map-olympus      { border-color: var(--olympus); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.2); }
 
+/* ===== シェアボタン ===== */
+.share-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--text);
+  transition: all .15s;
+}
+.share-btn:hover { background: var(--bg); border-color: var(--accent); transform: translateY(-1px); }
+.share-x { background: #000; border-color: #2a2a2a; color: #fff; }
+.share-x:hover { background: #151515; border-color: #fff; }
+.share-btn svg { display: block; }
+
 /* ===== 次の各マップ ===== */
 .next-each {
   display: grid;

@@ -136,8 +136,85 @@ function renderCurrent(now) {
     `${fmtTime(cur.start)} 〜 ${fmtTime(cur.end)} (JST)`;
   document.getElementById("next-name").textContent = nxt.map.name;
 
-  // タブタイトルにも反映
+  // タブタイトルとファビコン
   document.title = `${cur.map.name} | Apex ローテ早見表`;
+  updateFavicon(cur.map.id);
+}
+
+// ===== 動的ファビコン (現在マップの色で生成) =====
+function updateFavicon(mapId) {
+  const colors = {
+    broken_moon: "#5dd8ff",
+    kings_canyon: "#ff6b3d",
+    olympus: "#c77dff",
+  };
+  const letters = {
+    broken_moon: "ブ",
+    kings_canyon: "キ",
+    olympus: "オ",
+  };
+  const size = 64;
+  const c = document.createElement("canvas");
+  c.width = size; c.height = size;
+  const ctx = c.getContext("2d");
+  // 外周（黒）
+  ctx.fillStyle = "#0a0a0f";
+  ctx.beginPath();
+  ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+  ctx.fill();
+  // 内側カラー円
+  ctx.fillStyle = colors[mapId] || "#ff4655";
+  ctx.beginPath();
+  ctx.arc(size/2, size/2, size/2 - 4, 0, Math.PI * 2);
+  ctx.fill();
+  // 文字
+  ctx.fillStyle = "#0a0a0f";
+  ctx.font = `bold ${Math.floor(size * 0.6)}px "Noto Sans JP", sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(letters[mapId] || "?", size/2, size/2 + 2);
+
+  let link = document.getElementById("favicon-link");
+  if (!link) {
+    link = document.createElement("link");
+    link.id = "favicon-link";
+    link.rel = "icon";
+    document.head.appendChild(link);
+  }
+  link.type = "image/png";
+  link.href = c.toDataURL("image/png");
+}
+
+// ===== シェア =====
+function buildShareText() {
+  const cur = slotForTime(Date.now());
+  const nxt = nextSlot(cur);
+  return `現在のApexランクマップは「${cur.map.name}」(${fmtTime(cur.start)}〜${fmtTime(cur.end)})\n次は「${nxt.map.name}」\n\n#ApexLegends #エペ`;
+}
+
+function shareToX() {
+  const url = location.origin + location.pathname;
+  const text = buildShareText();
+  const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+  window.open(intent, "_blank", "noopener,noreferrer");
+}
+
+async function copyURL(btn) {
+  const url = location.origin + location.pathname;
+  const orig = btn.textContent;
+  try {
+    await navigator.clipboard.writeText(url);
+    btn.textContent = "コピー完了!";
+  } catch {
+    // 古いブラウザ向けフォールバック
+    const ta = document.createElement("textarea");
+    ta.value = url; document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); btn.textContent = "コピー完了!"; }
+    catch { btn.textContent = "コピー失敗"; }
+    document.body.removeChild(ta);
+  }
+  setTimeout(() => { btn.textContent = orig; }, 1600);
 }
 
 function renderCountdown(now) {
@@ -385,6 +462,10 @@ function tick() {
     renderLegend(slots);
     applyFilterClasses();
   });
+
+  // シェアボタン
+  document.getElementById("share-x").addEventListener("click", shareToX);
+  document.getElementById("share-copy").addEventListener("click", (e) => copyURL(e.currentTarget));
 
   setInterval(tick, 1000);
 })();

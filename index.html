@@ -6,6 +6,28 @@
 <meta name="theme-color" content="#0a0a0f" />
 <title>Apex ランクマップローテーション早見表</title>
 <meta name="description" content="現在時刻から1週間後までのApex Legendsランクマップローテーションを自動表示します。マップ別フィルタ・カウントダウン機能つき。" />
+
+<!-- OGP -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Apex Map Rotation" />
+<meta property="og:title" content="Apex ランクマップローテーション早見表" />
+<meta property="og:description" content="現在時刻から1週間先までのApexランクマップローテーションを自動表示。マップ別フィルタ・カウントダウン付き。" />
+<meta property="og:url" content="https://070213-yn.github.io/apex-map-rotation/" />
+<meta property="og:image" content="https://070213-yn.github.io/apex-map-rotation/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="ja_JP" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Apex ランクマップローテーション早見表" />
+<meta name="twitter:description" content="現在時刻から1週間先までのApexランクマップローテーションを自動表示。" />
+<meta name="twitter:image" content="https://070213-yn.github.io/apex-map-rotation/og-image.png" />
+
+<!-- ファビコン -->
+<link rel="icon" type="image/png" href="favicon.png" id="favicon-link" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -35,6 +57,13 @@
         <div class="next-line">
           <span class="next-label">NEXT</span>
           <span class="next-name" id="next-name">--</span>
+        </div>
+        <div class="share-row">
+          <button class="share-btn share-x" id="share-x" type="button" aria-label="Xでシェア">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2H21l-6.55 7.49L22 22h-6.78l-4.78-6.26L4.94 22H2.18l7.01-8.02L2 2h6.94l4.32 5.71L18.24 2Zm-1.18 18.4h1.66L7.04 3.5H5.27L17.06 20.4Z"/></svg>
+            <span>シェア</span>
+          </button>
+          <button class="share-btn share-copy" id="share-copy" type="button">URLをコピー</button>
         </div>
       </div>
     </section>
