@@ -189,7 +189,7 @@ function updateFavicon(mapId) {
 function buildShareText() {
   const cur = slotForTime(Date.now());
   const nxt = nextSlot(cur);
-  return `現在のApexランクマップは「${cur.map.name}」(${fmtTime(cur.start)}〜${fmtTime(cur.end)})\n次は「${nxt.map.name}」\n\n#ApexLegends #エペ`;
+  return `現在のApexランクマップは「${cur.map.name}」(${fmtTime(cur.start)}〜${fmtTime(cur.end)})\n次は「${nxt.map.name}」\n\n#ApexLegends #エペ #ランクマップローテーション早見表`;
 }
 
 function shareToX() {
