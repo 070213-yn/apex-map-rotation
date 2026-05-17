@@ -36,23 +36,32 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=s29b" />
+<link rel="stylesheet" href="styles.css?v=s29c" />
 </head>
 <body>
+  <!-- 背景パーティクル -->
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+  <!-- CRTスキャンライン -->
+  <div class="scanlines" aria-hidden="true"></div>
+  <!-- マップ切替時の画面フラッシュレイヤー -->
+  <div class="screen-flash" id="screen-flash" aria-hidden="true"></div>
+
   <header class="site-header">
     <div class="brand">
       <span class="brand-mark"></span>
-      <h1>APEX <span class="accent">MAP ROTATION</span> <span class="season">for SEASON29</span></h1>
+      <h1 class="glitch" data-text="APEX MAP ROTATION">APEX <span class="accent">MAP ROTATION</span> <span class="season">for SEASON29</span></h1>
     </div>
     <p class="tagline">ランクマップローテーション早見表 / 今から1週間先まで自動表示</p>
   </header>
 
   <main>
-    <!-- 現在のマップ -->
-    <section class="current-card" id="current-card" aria-live="polite">
+    <!-- 現在のマップ (HUDコーナー付き) -->
+    <section class="current-card hud-corners" id="current-card" aria-live="polite">
       <div class="current-image" id="current-image"></div>
       <div class="current-info">
-        <span class="current-label">NOW PLAYING</span>
+        <span class="current-label">
+          <span class="live-dot"></span>NOW PLAYING
+        </span>
         <h2 class="current-name" id="current-name">読み込み中…</h2>
         <p class="current-time" id="current-time"></p>
         <div class="countdown-wrap">
@@ -71,6 +80,8 @@
           <button class="share-btn share-copy" id="share-copy" type="button">URLをコピー</button>
         </div>
       </div>
+      <!-- 進行度バー -->
+      <div class="progress-bar" id="progress-bar"></div>
     </section>
 
     <!-- 次の各マップまで -->
@@ -87,7 +98,7 @@
     <section class="schedule" id="schedule"></section>
 
     <p class="note">
-      ※4時間30分ごとに「ブロークンムーン → キングスキャニオン → オリンパス」の順でローテーション。<br />
+      ※4時間30分ごとに「Broken Moon → Kings Canyon → Olympus」の順でローテーション。<br />
       時刻は日本時間(JST)で表示。1分ごとに自動更新します。
     </p>
   </main>
@@ -96,6 +107,6 @@
     <p>非公式ツール / Map images © Respawn Entertainment &amp; EA</p>
   </footer>
 
-  <script src="app.js?v=s29b"></script>
+  <script src="app.js?v=s29c"></script>
 </body>
 </html>

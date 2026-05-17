@@ -1,4 +1,9 @@
-/* ===== ベース ===== */
+/* ===============================================================
+   APEX MAP ROTATION — Gaming HUD Edition
+   ベース構造を維持しつつ、アニメーション/エフェクトを盛り盛り化
+   =============================================================== */
+
+/* ===== カラー変数 / 基本 ===== */
 :root {
   --bg: #0a0a0f;
   --bg-2: #12121a;
@@ -11,6 +16,10 @@
   --broken-moon: #5dd8ff;
   --kings-canyon: #ff6b3d;
   --olympus: #c77dff;
+
+  /* 現在のマップカラー（JSが切り替える想定。デフォは accent） */
+  --map-color: var(--accent);
+  --map-color-rgb: 255, 70, 85;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,6 +41,7 @@ body {
     var(--bg);
   background-attachment: fixed;
   position: relative;
+  overflow-x: hidden;
 }
 
 /* Season29 背景画像（薄く） */
@@ -53,12 +63,71 @@ body::after {
   pointer-events: none;
 }
 
+/* ===== 背景パーティクルキャンバス ===== */
+#particle-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* ===== CRT スキャンライン (全画面) ===== */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.025) 0px,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  animation: scanlineDrift 8s linear infinite;
+}
+@keyframes scanlineDrift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 3px; }
+}
+
+/* ===== マップ切替フラッシュ ===== */
+.screen-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at center,
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 70, 85, 0.25) 40%,
+    transparent 70%);
+  mix-blend-mode: screen;
+}
+.screen-flash.active {
+  animation: screenFlash 0.65s ease-out;
+}
+@keyframes screenFlash {
+  0%   { opacity: 0; }
+  10%  { opacity: 0.9; }
+  35%  { opacity: 0.35; }
+  60%  { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
 /* ===== ヘッダー ===== */
 .site-header {
   padding: 28px 20px 16px;
   text-align: center;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(180deg, rgba(255, 70, 85, 0.06), transparent);
+  position: relative;
+  animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both;
+  animation-delay: 0s;
 }
 
 .brand {
@@ -73,6 +142,11 @@ body::after {
   background: linear-gradient(180deg, var(--accent), var(--accent-2));
   transform: skewX(-20deg);
   box-shadow: 0 0 12px rgba(255, 70, 85, 0.6);
+  animation: brandMarkPulse 2.4s ease-in-out infinite;
+}
+@keyframes brandMarkPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(255, 70, 85, 0.6); }
+  50%      { box-shadow: 0 0 22px rgba(255, 176, 0, 0.85); }
 }
 
 .site-header h1 {
@@ -80,6 +154,8 @@ body::after {
   font-weight: 900;
   font-size: clamp(22px, 5vw, 36px);
   letter-spacing: 0.12em;
+  position: relative;
+  display: inline-block;
 }
 
 .accent { color: var(--accent); text-shadow: 0 0 12px rgba(255, 70, 85, 0.4); }
@@ -100,10 +176,66 @@ body::after {
   font-size: 14px;
 }
 
+/* ===== グリッチタイトル ===== */
+.glitch {
+  position: relative;
+  color: var(--text);
+  animation: glitchSkew 9s steps(1) infinite;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+.glitch::before {
+  color: var(--accent);
+  text-shadow: 2px 0 var(--accent);
+  animation: glitchTop 9s steps(1) infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+}
+.glitch::after {
+  color: var(--broken-moon);
+  text-shadow: -2px 0 var(--broken-moon);
+  animation: glitchBottom 9s steps(1) infinite;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
+@keyframes glitchSkew {
+  0%, 92%, 100% { transform: none; }
+  93%  { transform: skewX(2deg); }
+  94%  { transform: skewX(-3deg); }
+  95%  { transform: skewX(1deg); }
+  96%  { transform: none; }
+}
+@keyframes glitchTop {
+  0%, 92%, 100% { opacity: 0; transform: translate(0,0); }
+  93%  { opacity: 0.9; transform: translate(-3px, -2px); }
+  94%  { opacity: 0.9; transform: translate(2px, 1px); }
+  95%  { opacity: 0.7; transform: translate(-1px, 2px); }
+  96%  { opacity: 0; }
+}
+@keyframes glitchBottom {
+  0%, 92%, 100% { opacity: 0; transform: translate(0,0); }
+  93%  { opacity: 0.9; transform: translate(3px, 2px); }
+  94%  { opacity: 0.9; transform: translate(-2px, -1px); }
+  95%  { opacity: 0.7; transform: translate(1px, -2px); }
+  96%  { opacity: 0; }
+}
+
+/* ===== メイン ===== */
 main {
   max-width: 1100px;
   margin: 0 auto;
   padding: 24px 16px 60px;
+  position: relative;
 }
 
 /* ===== 現在のマップカード ===== */
@@ -118,19 +250,119 @@ main {
   overflow: hidden;
   margin-bottom: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  transition: border-color .3s;
+  transition: border-color .3s, box-shadow .4s;
+  animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both;
+  animation-delay: 0.15s;
 }
 
 @media (min-width: 720px) {
   .current-card { grid-template-columns: 360px 1fr; }
 }
 
+/* マップカラー別 枠 + 周囲グロー脈動 */
+.current-card.map-broken_moon {
+  --map-color: var(--broken-moon);
+  --map-color-rgb: 93, 216, 255;
+  border-color: var(--broken-moon);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(93,216,255,.25), 0 0 28px rgba(93,216,255,.18);
+  animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both, cardGlowBM 4s ease-in-out infinite 0.7s;
+}
+.current-card.map-kings_canyon {
+  --map-color: var(--kings-canyon);
+  --map-color-rgb: 255, 107, 61;
+  border-color: var(--kings-canyon);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.25), 0 0 28px rgba(255,107,61,.18);
+  animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both, cardGlowKC 4s ease-in-out infinite 0.7s;
+}
+.current-card.map-olympus {
+  --map-color: var(--olympus);
+  --map-color-rgb: 199, 125, 255;
+  border-color: var(--olympus);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.25), 0 0 28px rgba(199,125,255,.18);
+  animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both, cardGlowOL 4s ease-in-out infinite 0.7s;
+}
+@keyframes cardGlowBM {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(93,216,255,.25), 0 0 28px rgba(93,216,255,.18); }
+  50%      { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(93,216,255,.5),  0 0 48px rgba(93,216,255,.4); }
+}
+@keyframes cardGlowKC {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.25), 0 0 28px rgba(255,107,61,.18); }
+  50%      { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.5),  0 0 48px rgba(255,107,61,.4); }
+}
+@keyframes cardGlowOL {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.25), 0 0 28px rgba(199,125,255,.18); }
+  50%      { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.5),  0 0 48px rgba(199,125,255,.4); }
+}
+
+/* ===== HUD コーナーブラケット (4隅すべて) ===== */
+/* before/after の2要素で、box-shadow の四方向オフセットを使って4隅すべてを表現する */
+.hud-corners { position: relative; }
+.hud-corners::before,
+.hud-corners::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 3;
+  border: 2px solid var(--map-color);
+  filter: drop-shadow(0 0 6px rgba(var(--map-color-rgb), 0.7));
+  transition: border-color .3s;
+}
+/* 左上 + 右上を before に */
+.hud-corners::before {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+  box-shadow:
+    /* 右上ブラケット (上 + 右) — 別位置に同じL字を描く */
+    calc(100% + 16px - 100%) 0 0 0 transparent;
+}
+/* 右上 はクローン要素として描くため、もう片方の::afterを左下に。
+   そして右上・右下は box-shadow ではなくて outline + clip ではできないので、
+   別の手法: ::before / ::after にそれぞれ複数の box-shadow を仕込むのではなく、
+   実体は border + ::before/::after で2隅、残り2隅は親要素にbackground-imageで描画する */
+.hud-corners::after {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+/* 残り2隅 (右上・左下) は background-image (linear-gradient) で描画 */
+.hud-corners {
+  background-image:
+    /* 右上 横棒 */
+    linear-gradient(to right, transparent calc(100% - 18px), var(--map-color) calc(100% - 18px), var(--map-color) calc(100% - 8px), transparent calc(100% - 8px)),
+    /* 右上 縦棒 */
+    linear-gradient(to bottom, transparent 8px, var(--map-color) 8px, var(--map-color) 10px, transparent 10px),
+    /* 左下 横棒 */
+    linear-gradient(to right, transparent 8px, var(--map-color) 8px, var(--map-color) 18px, transparent 18px),
+    /* 左下 縦棒 */
+    linear-gradient(to bottom, transparent calc(100% - 10px), var(--map-color) calc(100% - 10px), var(--map-color) calc(100% - 8px), transparent calc(100% - 8px));
+  background-repeat: no-repeat;
+  background-size:
+    100% 2px,
+    2px 18px,
+    18px 2px,
+    18px 2px;
+  background-position:
+    0 8px,           /* 右上 横 */
+    calc(100% - 8px) 8px,  /* 右上 縦 */
+    8px calc(100% - 8px), /* 左下 横 */
+    8px calc(100% - 18px); /* 左下 縦 */
+}
+
+/* ===== 現在マップ画像 (Ken Burns) ===== */
 .current-image {
   background-color: #000;
   background-size: cover;
   background-position: center;
   min-height: 200px;
   position: relative;
+  overflow: hidden;
+  animation: kenBurns 28s ease-in-out infinite alternate;
+  will-change: transform;
 }
 .current-image::after {
   content: "";
@@ -138,21 +370,55 @@ main {
   inset: 0;
   background: linear-gradient(135deg, transparent 50%, rgba(10, 10, 15, 0.7));
 }
+@keyframes kenBurns {
+  0%   { transform: scale(1.0)  translate(0, 0); }
+  50%  { transform: scale(1.08) translate(-1.5%, -1%); }
+  100% { transform: scale(1.12) translate(1.5%, 1%); }
+}
 
+/* ===== 現在マップ 情報エリア ===== */
 .current-info {
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 10px;
+  position: relative;
 }
 
 .current-label {
   font-family: "Orbitron", sans-serif;
   font-size: 12px;
   letter-spacing: 0.3em;
-  color: var(--accent);
+  color: var(--map-color);
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border: 1px solid var(--map-color);
+  border-radius: 4px;
+  background: rgba(var(--map-color-rgb), 0.08);
+  box-shadow: 0 0 12px rgba(var(--map-color-rgb), 0.25), inset 0 0 8px rgba(var(--map-color-rgb), 0.1);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(var(--map-color-rgb), 0.25), inset 0 0 8px rgba(var(--map-color-rgb), 0.1); }
+  50%      { box-shadow: 0 0 22px rgba(var(--map-color-rgb), 0.55), inset 0 0 14px rgba(var(--map-color-rgb), 0.2); }
+}
+
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+  box-shadow: 0 0 8px var(--accent);
+  animation: liveDot 1.2s ease-in-out infinite;
+}
+@keyframes liveDot {
+  0%, 100% { opacity: 1;   transform: scale(1);   box-shadow: 0 0 8px var(--accent); }
+  50%      { opacity: 0.4; transform: scale(1.5); box-shadow: 0 0 16px var(--accent); }
 }
 
 .current-name {
@@ -161,6 +427,11 @@ main {
   font-weight: 900;
   letter-spacing: 0.04em;
   line-height: 1.1;
+  color: var(--text);
+  text-shadow:
+    0 0 12px rgba(var(--map-color-rgb), 0.55),
+    0 0 28px rgba(var(--map-color-rgb), 0.3),
+    0 2px 0 rgba(0,0,0,0.5);
 }
 
 .current-time {
@@ -189,7 +460,12 @@ main {
   font-weight: 700;
   color: var(--accent-2);
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 8px rgba(255, 176, 0, 0.35);
+  text-shadow: 0 0 8px rgba(255, 176, 0, 0.45);
+  animation: countdownTick 1s ease-in-out infinite;
+}
+@keyframes countdownTick {
+  0%, 100% { text-shadow: 0 0 8px rgba(255, 176, 0, 0.45); }
+  50%      { text-shadow: 0 0 16px rgba(255, 176, 0, 0.9), 0 0 28px rgba(255, 176, 0, 0.45); }
 }
 
 .next-line {
@@ -209,9 +485,29 @@ main {
 }
 .next-name { color: var(--text); font-weight: 700; }
 
-.current-card.map-broken_moon  { border-color: var(--broken-moon); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(93,216,255,.2); }
-.current-card.map-kings_canyon { border-color: var(--kings-canyon); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.2); }
-.current-card.map-olympus      { border-color: var(--olympus); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.2); }
+/* ===== 進行度バー ===== */
+.progress-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  box-shadow:
+    0 0 8px rgba(255, 70, 85, 0.7),
+    0 0 16px rgba(255, 176, 0, 0.5);
+  transition: width 1s linear;
+  z-index: 4;
+}
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0;
+  width: 12px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85));
+  filter: blur(2px);
+}
 
 /* ===== シェアボタン ===== */
 .share-row {
@@ -221,6 +517,8 @@ main {
   flex-wrap: wrap;
 }
 .share-btn {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -233,12 +531,34 @@ main {
   border: 1px solid var(--border);
   background: var(--bg-3);
   color: var(--text);
-  transition: all .15s;
+  transition: transform .15s, box-shadow .2s, border-color .2s, background .2s;
 }
-.share-btn:hover { background: var(--bg); border-color: var(--accent); transform: translateY(-1px); }
+.share-btn:hover {
+  background: var(--bg);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 70, 85, 0.35), 0 0 0 1px rgba(255, 70, 85, 0.4);
+}
+.share-btn:active { transform: translateY(0); }
 .share-x { background: #000; border-color: #2a2a2a; color: #fff; }
-.share-x:hover { background: #151515; border-color: #fff; }
+.share-x:hover { background: #151515; border-color: #fff; box-shadow: 0 6px 18px rgba(255,255,255,0.18); }
 .share-btn svg { display: block; }
+
+/* リップル (JSが span.ripple を append する想定) */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0);
+  animation: ripple .6s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
 
 /* ===== 次の各マップ ===== */
 .next-each {
@@ -246,8 +566,11 @@ main {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
   margin-bottom: 28px;
+  animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both;
+  animation-delay: 0.30s;
 }
 .next-each-card {
+  position: relative;
   background: var(--bg-2);
   border: 1px solid var(--border);
   border-left-width: 4px;
@@ -256,14 +579,36 @@ main {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: transform .2s, box-shadow .25s;
+  overflow: hidden;
 }
+.next-each-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.06) 50%, transparent 65%);
+  transition: left .6s ease;
+  pointer-events: none;
+}
+.next-each-card:hover { transform: translateY(-2px); }
+.next-each-card:hover::before { left: 100%; }
+
 .next-each-card.map-broken_moon  { border-left-color: var(--broken-moon); }
 .next-each-card.map-kings_canyon { border-left-color: var(--kings-canyon); }
 .next-each-card.map-olympus      { border-left-color: var(--olympus); }
+.next-each-card.map-broken_moon:hover  { box-shadow: 0 6px 24px rgba(93,216,255,0.25), 0 0 0 1px rgba(93,216,255,0.4); }
+.next-each-card.map-kings_canyon:hover { box-shadow: 0 6px 24px rgba(255,107,61,0.25), 0 0 0 1px rgba(255,107,61,0.4); }
+.next-each-card.map-olympus:hover      { box-shadow: 0 6px 24px rgba(199,125,255,0.25), 0 0 0 1px rgba(199,125,255,0.4); }
 
 .next-each-card.live {
   background: linear-gradient(90deg, rgba(255,70,85,.10), var(--bg-2));
   border-color: var(--accent);
+  animation: livePulse 2.2s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,70,85,.3); }
+  50%      { box-shadow: 0 0 0 1px rgba(255,70,85,.6), 0 0 24px rgba(255,70,85,.4); }
 }
 .next-each-name {
   font-family: "Orbitron", sans-serif;
@@ -296,6 +641,8 @@ main {
   background: var(--bg-2);
   border: 1px solid var(--border);
   border-radius: 10px;
+  animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both;
+  animation-delay: 0.45s;
 }
 .filter-label {
   font-size: 12px;
@@ -309,6 +656,8 @@ main {
   gap: 8px;
 }
 .legend-item {
+  position: relative;
+  overflow: hidden;
   cursor: pointer;
   user-select: none;
   display: inline-flex;
@@ -320,15 +669,17 @@ main {
   background: var(--bg-3);
   border: 1px solid var(--border);
   border-radius: 999px;
-  transition: all .15s;
+  transition: background .2s, border-color .2s, box-shadow .25s, transform .15s;
 }
-.legend-item:hover { background: #25253a; }
+.legend-item:hover { background: #25253a; transform: translateY(-1px); }
+.legend-item:hover .dot { transform: scale(1.3); }
 .legend-item.off {
   opacity: .35;
   color: var(--text-dim);
 }
 .legend-item .dot {
   width: 10px; height: 10px; border-radius: 50%;
+  transition: transform .2s, box-shadow .25s;
 }
 .legend-item .hours {
   font-size: 11px;
@@ -339,7 +690,15 @@ main {
 .legend-item.map-broken_moon  .dot { background: var(--broken-moon); box-shadow: 0 0 6px var(--broken-moon); }
 .legend-item.map-kings_canyon .dot { background: var(--kings-canyon); box-shadow: 0 0 6px var(--kings-canyon); }
 .legend-item.map-olympus      .dot { background: var(--olympus);      box-shadow: 0 0 6px var(--olympus); }
+.legend-item.map-broken_moon:hover  .dot { box-shadow: 0 0 14px var(--broken-moon); }
+.legend-item.map-kings_canyon:hover .dot { box-shadow: 0 0 14px var(--kings-canyon); }
+.legend-item.map-olympus:hover      .dot { box-shadow: 0 0 14px var(--olympus); }
 .legend-item.off .dot { box-shadow: none; }
+
+/* アクティブ (フィルタON) 時 マップカラーのほのかなグロー */
+.legend-item.map-broken_moon:not(.off)  { box-shadow: 0 0 0 1px rgba(93,216,255,0.35), 0 0 12px rgba(93,216,255,0.15); }
+.legend-item.map-kings_canyon:not(.off) { box-shadow: 0 0 0 1px rgba(255,107,61,0.35), 0 0 12px rgba(255,107,61,0.15); }
+.legend-item.map-olympus:not(.off)      { box-shadow: 0 0 0 1px rgba(199,125,255,0.35), 0 0 12px rgba(199,125,255,0.15); }
 
 .filter-reset {
   margin-left: auto;
@@ -350,13 +709,23 @@ main {
   font-size: 12px;
   padding: 6px 12px;
   border-radius: 999px;
-  transition: all .15s;
+  transition: color .2s, border-color .2s, box-shadow .25s;
   font-family: inherit;
 }
-.filter-reset:hover { color: var(--text); border-color: var(--accent); }
+.filter-reset:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(255,70,85,0.3);
+}
 
 /* ===== スケジュール ===== */
-.schedule { display: flex; flex-direction: column; gap: 22px; }
+.schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both;
+  animation-delay: 0.60s;
+}
 
 .day-block { scroll-margin-top: 12px; }
 
@@ -367,6 +736,16 @@ main {
   margin-bottom: 10px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.day-heading::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -1px;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  box-shadow: 0 0 6px var(--accent);
 }
 .day-date {
   font-family: "Orbitron", sans-serif;
@@ -387,6 +766,7 @@ main {
   gap: 10px;
 }
 
+/* ===== スロット ===== */
 .slot {
   position: relative;
   display: flex;
@@ -401,11 +781,12 @@ main {
   overflow: hidden;
   min-height: 76px;
   padding: 12px 18px;
-  transition: transform .15s, opacity .15s;
+  transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .3s, border-color .3s;
+  perspective: 800px;
+  transform-style: preserve-3d;
 }
-.slot:hover { transform: translateY(-1px); }
 
-/* 右側に向かって暗くする（背景画像が薄れる効果） */
+/* 右側に向かって暗くする (既存) */
 .slot::before {
   content: "";
   position: absolute;
@@ -417,11 +798,34 @@ main {
     rgba(10,10,15,0.95) 100%);
   pointer-events: none;
   z-index: 0;
+  transition: transform .5s ease, background .3s;
 }
+/* ホバー時の光ライン (擬似要素2つめ) */
+.slot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%);
+  transform: translateX(-100%);
+  transition: transform .7s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.slot:hover {
+  transform: translateY(-2px) rotateY(-2deg);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+}
+.slot:hover::before { transform: scale(1.05); }
+.slot:hover::after  { transform: translateX(100%); }
+
+/* マップ別ホバーグロー */
+.slot.map-broken_moon:hover  { box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(93,216,255,0.5),  0 0 24px rgba(93,216,255,0.25); }
+.slot.map-kings_canyon:hover { box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,107,61,0.5),  0 0 24px rgba(255,107,61,0.25); }
+.slot.map-olympus:hover      { box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(199,125,255,0.5), 0 0 24px rgba(199,125,255,0.25); }
 
 .slot-body {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -457,10 +861,16 @@ main {
 .slot.map-kings_canyon { border-left-color: var(--kings-canyon); }
 .slot.map-olympus      { border-left-color: var(--olympus); }
 
+/* LIVE スロット */
 .slot.now {
-  background: linear-gradient(90deg, rgba(255,70,85,.1), transparent);
+  background-color: rgba(255,70,85,0.05);
   border-color: var(--accent);
   box-shadow: 0 0 0 1px rgba(255,70,85,.3);
+  animation: slotLiveGlow 2.4s ease-in-out infinite;
+}
+@keyframes slotLiveGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,70,85,.3), 0 0 18px rgba(255,70,85,0.2); }
+  50%      { box-shadow: 0 0 0 1px rgba(255,70,85,.7), 0 0 32px rgba(255,70,85,0.45); }
 }
 .slot.now .slot-time::before {
   content: "● LIVE  ";
@@ -474,7 +884,7 @@ main {
   50% { opacity: .35; }
 }
 
-/* フィルタで除外されたスロットは薄く小さく */
+/* フィルタで除外されたスロットは薄く */
 .slot.filtered-out {
   opacity: .25;
   filter: grayscale(0.6);
@@ -504,4 +914,27 @@ footer {
   font-size: 11px;
   color: var(--text-dim);
   border-top: 1px solid var(--border);
+}
+
+/* ===== 共通: エントリースライドイン ===== */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== prefers-reduced-motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .glitch::before, .glitch::after { display: none; }
+  .current-image { animation: none; transform: none; }
+  #particle-canvas { display: none; }
+  .scanlines { display: none; }
+  .screen-flash { display: none; }
+  .live-dot, .countdown, .current-label,
+  .slot.now, .next-each-card.live,
+  .brand-mark { animation: none !important; }
 }
