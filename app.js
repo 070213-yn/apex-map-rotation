@@ -20,10 +20,10 @@ let activeFilter = loadFilter(); // Set<mapId>
 function loadFilter() {
   try {
     const raw = localStorage.getItem(FILTER_KEY);
-    if (!raw) return new Set(MAPS.map(m => m.id));
+    if (raw === null) return new Set(MAPS.map(m => m.id)); // 初回のみ全選択
     const arr = JSON.parse(raw);
-    if (!Array.isArray(arr) || arr.length === 0) return new Set(MAPS.map(m => m.id));
-    return new Set(arr.filter(id => MAPS.some(m => m.id === id)));
+    if (!Array.isArray(arr)) return new Set(MAPS.map(m => m.id));
+    return new Set(arr.filter(id => MAPS.some(m => m.id === id))); // 空配列も許可
   } catch {
     return new Set(MAPS.map(m => m.id));
   }
@@ -227,10 +227,7 @@ function renderLegend(slots) {
 
     item.addEventListener("click", () => {
       if (activeFilter.has(m.id)) {
-        if (activeFilter.size > 1) activeFilter.delete(m.id);
-        else { // 1つだけの時にOFFにされた → 全選択に戻す
-          activeFilter = new Set(MAPS.map(x => x.id));
-        }
+        activeFilter.delete(m.id); // 最後の1つもOFFにできる
       } else {
         activeFilter.add(m.id);
       }
@@ -244,6 +241,7 @@ function renderLegend(slots) {
 }
 
 function applyFilterClasses() {
+  // 全選択 = 絞り込みなし扱い。全OFFは「全部薄く」表示
   const allSelected = activeFilter.size === MAPS.length;
   document.querySelectorAll(".slot").forEach(el => {
     const id = el.dataset.mapId;
