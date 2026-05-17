@@ -294,66 +294,7 @@ main {
   50%      { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.5),  0 0 48px rgba(199,125,255,.4); }
 }
 
-/* ===== HUD コーナーブラケット (4隅すべて) ===== */
-/* before/after の2要素で、box-shadow の四方向オフセットを使って4隅すべてを表現する */
-.hud-corners { position: relative; }
-.hud-corners::before,
-.hud-corners::after {
-  content: "";
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  pointer-events: none;
-  z-index: 3;
-  border: 2px solid var(--map-color);
-  filter: drop-shadow(0 0 6px rgba(var(--map-color-rgb), 0.7));
-  transition: border-color .3s;
-}
-/* 左上 + 右上を before に */
-.hud-corners::before {
-  top: 8px;
-  left: 8px;
-  border-right: none;
-  border-bottom: none;
-  box-shadow:
-    /* 右上ブラケット (上 + 右) — 別位置に同じL字を描く */
-    calc(100% + 16px - 100%) 0 0 0 transparent;
-}
-/* 右上 はクローン要素として描くため、もう片方の::afterを左下に。
-   そして右上・右下は box-shadow ではなくて outline + clip ではできないので、
-   別の手法: ::before / ::after にそれぞれ複数の box-shadow を仕込むのではなく、
-   実体は border + ::before/::after で2隅、残り2隅は親要素にbackground-imageで描画する */
-.hud-corners::after {
-  bottom: 8px;
-  right: 8px;
-  border-left: none;
-  border-top: none;
-}
-/* 残り2隅 (右上・左下) は background-image (linear-gradient) で描画 */
-.hud-corners {
-  background-image:
-    /* 右上 横棒 */
-    linear-gradient(to right, transparent calc(100% - 18px), var(--map-color) calc(100% - 18px), var(--map-color) calc(100% - 8px), transparent calc(100% - 8px)),
-    /* 右上 縦棒 */
-    linear-gradient(to bottom, transparent 8px, var(--map-color) 8px, var(--map-color) 10px, transparent 10px),
-    /* 左下 横棒 */
-    linear-gradient(to right, transparent 8px, var(--map-color) 8px, var(--map-color) 18px, transparent 18px),
-    /* 左下 縦棒 */
-    linear-gradient(to bottom, transparent calc(100% - 10px), var(--map-color) calc(100% - 10px), var(--map-color) calc(100% - 8px), transparent calc(100% - 8px));
-  background-repeat: no-repeat;
-  background-size:
-    100% 2px,
-    2px 18px,
-    18px 2px,
-    18px 2px;
-  background-position:
-    0 8px,           /* 右上 横 */
-    calc(100% - 8px) 8px,  /* 右上 縦 */
-    8px calc(100% - 8px), /* 左下 横 */
-    8px calc(100% - 18px); /* 左下 縦 */
-}
-
-/* ===== 現在マップ画像 (Ken Burns) ===== */
+/* ===== 現在マップ画像 ===== */
 .current-image {
   background-color: #000;
   background-size: cover;
@@ -361,19 +302,12 @@ main {
   min-height: 200px;
   position: relative;
   overflow: hidden;
-  animation: kenBurns 28s ease-in-out infinite alternate;
-  will-change: transform;
 }
 .current-image::after {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, transparent 50%, rgba(10, 10, 15, 0.7));
-}
-@keyframes kenBurns {
-  0%   { transform: scale(1.0)  translate(0, 0); }
-  50%  { transform: scale(1.08) translate(-1.5%, -1%); }
-  100% { transform: scale(1.12) translate(1.5%, 1%); }
 }
 
 /* ===== 現在マップ 情報エリア ===== */
