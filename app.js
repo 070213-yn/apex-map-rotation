@@ -332,28 +332,6 @@ function applyFilterClasses() {
   });
 }
 
-function renderDayNav(slots) {
-  const days = [];
-  const seen = new Set();
-  for (const s of slots) {
-    const key = fmtDayKey(s.start);
-    if (!seen.has(key)) {
-      seen.add(key);
-      days.push({ key, label: fmtDayLabel(s.start) });
-    }
-  }
-  const nav = document.getElementById("day-nav");
-  nav.innerHTML = "";
-  const todayKey = fmtDayKey(Date.now());
-  for (const d of days) {
-    const a = document.createElement("a");
-    a.href = `#day-${d.key}`;
-    a.textContent = `${d.label.date}(${d.label.weekday})`;
-    if (d.key === todayKey) a.classList.add("today");
-    nav.appendChild(a);
-  }
-}
-
 function renderSchedule(slots) {
   const startSlot = slots[0];
 
@@ -428,7 +406,6 @@ function fullRender(now) {
   renderCurrent(now);
   renderNextEach(now);
   renderLegend(slots);
-  renderDayNav(slots);
   renderSchedule(slots);
 }
 

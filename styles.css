@@ -325,32 +325,6 @@ main {
 }
 .filter-reset:hover { color: var(--text); border-color: var(--accent); }
 
-/* ===== 日付ジャンプナビ ===== */
-.day-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 18px;
-  padding-bottom: 6px;
-  overflow-x: auto;
-}
-.day-nav a {
-  font-family: "Orbitron", sans-serif;
-  font-size: 12px;
-  color: var(--text-dim);
-  text-decoration: none;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  white-space: nowrap;
-  transition: all .15s;
-}
-.day-nav a:hover, .day-nav a.today {
-  color: var(--text);
-  border-color: var(--accent);
-}
-.day-nav a.today { background: rgba(255,70,85,.15); }
-
 /* ===== スケジュール ===== */
 .schedule { display: flex; flex-direction: column; gap: 22px; }
 
