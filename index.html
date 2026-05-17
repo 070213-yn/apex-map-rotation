@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0a0f" />
+<title>Apex ランクマップローテーションよそく</title>
+<meta name="description" content="現在時刻から3日後までのApex Legendsランクマップローテーションを自動表示します。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <h1>APEX <span class="accent">MAP ROTATION</span></h1>
+    </div>
+    <p class="tagline">ランクマップローテーションよそく / 今から3日後まで自動表示</p>
+  </header>
+
+  <main>
+    <!-- 現在のマップ -->
+    <section class="current-card" id="current-card" aria-live="polite">
+      <div class="current-image" id="current-image"></div>
+      <div class="current-info">
+        <span class="current-label">NOW PLAYING</span>
+        <h2 class="current-name" id="current-name">読み込み中…</h2>
+        <p class="current-time" id="current-time"></p>
+        <div class="countdown-wrap">
+          <span class="countdown-label">次のマップまで</span>
+          <span class="countdown" id="countdown">--:--:--</span>
+        </div>
+        <div class="next-line">
+          <span class="next-label">NEXT</span>
+          <span class="next-name" id="next-name">--</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 凡例 -->
+    <section class="legend">
+      <div class="legend-item map-broken_moon"><span class="dot"></span>ブロークンムーン</div>
+      <div class="legend-item map-kings_canyon"><span class="dot"></span>キングスキャニオン</div>
+      <div class="legend-item map-olympus"><span class="dot"></span>オリンパス</div>
+    </section>
+
+    <!-- 3日間スケジュール -->
+    <section class="schedule" id="schedule"></section>
+
+    <p class="note">
+      ※4時間30分ごとに「ブロークンムーン → キングスキャニオン → オリンパス」の順でローテーション。<br />
+      時刻は日本時間(JST)で表示。1分ごとに自動更新します。
+    </p>
+  </main>
+
+  <footer>
+    <p>非公式ツール / Map images © Respawn Entertainment &amp; EA</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

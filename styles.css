@@ -1,0 +1,325 @@
+/* ===== ベース ===== */
+:root {
+  --bg: #0a0a0f;
+  --bg-2: #12121a;
+  --bg-3: #1a1a26;
+  --text: #e8e8f0;
+  --text-dim: #8a8aa0;
+  --accent: #ff4655;       /* Apexレッド */
+  --accent-2: #ffb000;     /* オレンジ */
+  --border: #2a2a3a;
+  --broken-moon: #5dd8ff;
+  --kings-canyon: #ff6b3d;
+  --olympus: #c77dff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at top, rgba(255, 70, 85, 0.08), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(199, 125, 255, 0.05), transparent 50%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* ===== ヘッダー ===== */
+.site-header {
+  padding: 28px 20px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 70, 85, 0.06), transparent);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark {
+  width: 14px;
+  height: 32px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  transform: skewX(-20deg);
+  box-shadow: 0 0 12px rgba(255, 70, 85, 0.6);
+}
+
+.site-header h1 {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 900;
+  font-size: clamp(22px, 5vw, 36px);
+  letter-spacing: 0.12em;
+}
+
+.accent { color: var(--accent); text-shadow: 0 0 12px rgba(255, 70, 85, 0.4); }
+
+.tagline {
+  color: var(--text-dim);
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+/* ===== 現在のマップカード ===== */
+.current-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: border-color .3s;
+}
+
+@media (min-width: 720px) {
+  .current-card { grid-template-columns: 360px 1fr; }
+}
+
+.current-image {
+  background-color: #000;
+  background-size: cover;
+  background-position: center;
+  min-height: 200px;
+  position: relative;
+}
+.current-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 50%, rgba(10, 10, 15, 0.7));
+}
+
+.current-info {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.current-label {
+  font-family: "Orbitron", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.current-name {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(28px, 6vw, 44px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.current-time {
+  color: var(--text-dim);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.countdown-label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.countdown {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 700;
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 8px rgba(255, 176, 0, 0.35);
+}
+
+.next-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.next-label {
+  font-family: "Orbitron", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.next-name { color: var(--text); font-weight: 700; }
+
+/* マップ別のカラーバー */
+.current-card.map-broken_moon  { border-color: var(--broken-moon); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(93,216,255,.2); }
+.current-card.map-kings_canyon { border-color: var(--kings-canyon); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.2); }
+.current-card.map-olympus      { border-color: var(--olympus); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.2); }
+
+/* ===== 凡例 ===== */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+  justify-content: center;
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: 4px 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.legend-item .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.legend-item.map-broken_moon  .dot { background: var(--broken-moon); box-shadow: 0 0 6px var(--broken-moon); }
+.legend-item.map-kings_canyon .dot { background: var(--kings-canyon); box-shadow: 0 0 6px var(--kings-canyon); }
+.legend-item.map-olympus      .dot { background: var(--olympus);      box-shadow: 0 0 6px var(--olympus); }
+
+/* ===== スケジュール ===== */
+.schedule { display: flex; flex-direction: column; gap: 22px; }
+
+.day-block { }
+
+.day-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.day-date {
+  font-family: "Orbitron", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.day-weekday {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.day-weekday.sat { color: #5dd8ff; }
+.day-weekday.sun { color: #ff6b8a; }
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.slot {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  align-items: center;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform .15s, background .15s;
+}
+.slot:hover { transform: translateY(-1px); background: var(--bg-3); }
+
+.slot-thumb {
+  width: 64px;
+  height: 64px;
+  background-size: cover;
+  background-position: center;
+}
+
+.slot-body {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.slot-time {
+  font-family: "Orbitron", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.slot-map {
+  font-size: 13px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* マップ別 ボーダー色 */
+.slot.map-broken_moon  { border-left-color: var(--broken-moon); }
+.slot.map-kings_canyon { border-left-color: var(--kings-canyon); }
+.slot.map-olympus      { border-left-color: var(--olympus); }
+
+/* 現在進行中スロット */
+.slot.now {
+  background: linear-gradient(90deg, rgba(255,70,85,.1), transparent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(255,70,85,.3);
+}
+.slot.now .slot-time::before {
+  content: "● LIVE  ";
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: .15em;
+  animation: pulse 1.4s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+
+/* 過去（カウントダウン中の現在スロットより前の時間は表示しない方針） */
+
+.note {
+  margin-top: 32px;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.7;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
