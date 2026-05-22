@@ -6,7 +6,9 @@
   "use strict";
 
   // --- 定数 ---
-  const ANCHOR_UTC = Date.UTC(2026, 4, 11, 8, 0, 0); // 2026-05-11 17:00 JST = 08:00 UTC
+  // 起点: ゲーム内実測に合わせて補正。2026-05-22 21:30 JST に Broken Moon 開始
+  // (21:30〜02:00 Broken Moon → 02:00〜06:30 Kings Canyon → 06:30〜11:00 Olympus)
+  const ANCHOR_UTC = Date.UTC(2026, 4, 22, 12, 30, 0); // 2026-05-22 21:30 JST = 12:30 UTC
   const SLOT_MS = 4.5 * 60 * 60 * 1000;
   const HORIZON_MS = 7 * 24 * 60 * 60 * 1000;       // 1週間
   const FILTER_KEY = "apex_map_filter_v1";
