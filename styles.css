@@ -14,7 +14,7 @@
   --accent-2: #ffb000;     /* オレンジ */
   --border: #2a2a3a;
   --broken-moon: #5dd8ff;
-  --kings-canyon: #ff6b3d;
+  --storm-point: #3dd68c;
   --olympus: #c77dff;
 
   /* 現在のマップカラー（JSが切り替える想定。デフォは accent） */
@@ -267,11 +267,11 @@ main {
   box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(93,216,255,.25), 0 0 28px rgba(93,216,255,.18);
   animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both, cardGlowBM 4s ease-in-out infinite 0.7s;
 }
-.current-card.map-kings_canyon {
-  --map-color: var(--kings-canyon);
-  --map-color-rgb: 255, 107, 61;
-  border-color: var(--kings-canyon);
-  box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.25), 0 0 28px rgba(255,107,61,.18);
+.current-card.map-storm_point {
+  --map-color: var(--storm-point);
+  --map-color-rgb: 61, 214, 140;
+  border-color: var(--storm-point);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(61,214,140,.25), 0 0 28px rgba(61,214,140,.18);
   animation: slideUp 0.7s cubic-bezier(.2,.7,.2,1) both, cardGlowKC 4s ease-in-out infinite 0.7s;
 }
 .current-card.map-olympus {
@@ -286,8 +286,8 @@ main {
   50%      { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(93,216,255,.5),  0 0 48px rgba(93,216,255,.4); }
 }
 @keyframes cardGlowKC {
-  0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.25), 0 0 28px rgba(255,107,61,.18); }
-  50%      { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,61,.5),  0 0 48px rgba(255,107,61,.4); }
+  0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(61,214,140,.25), 0 0 28px rgba(61,214,140,.18); }
+  50%      { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(61,214,140,.5),  0 0 48px rgba(61,214,140,.4); }
 }
 @keyframes cardGlowOL {
   0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(199,125,255,.25), 0 0 28px rgba(199,125,255,.18); }
@@ -529,10 +529,10 @@ main {
 .next-each-card:hover::before { left: 100%; }
 
 .next-each-card.map-broken_moon  { border-left-color: var(--broken-moon); }
-.next-each-card.map-kings_canyon { border-left-color: var(--kings-canyon); }
+.next-each-card.map-storm_point { border-left-color: var(--storm-point); }
 .next-each-card.map-olympus      { border-left-color: var(--olympus); }
 .next-each-card.map-broken_moon:hover  { box-shadow: 0 6px 24px rgba(93,216,255,0.25), 0 0 0 1px rgba(93,216,255,0.4); }
-.next-each-card.map-kings_canyon:hover { box-shadow: 0 6px 24px rgba(255,107,61,0.25), 0 0 0 1px rgba(255,107,61,0.4); }
+.next-each-card.map-storm_point:hover { box-shadow: 0 6px 24px rgba(61,214,140,0.25), 0 0 0 1px rgba(61,214,140,0.4); }
 .next-each-card.map-olympus:hover      { box-shadow: 0 6px 24px rgba(199,125,255,0.25), 0 0 0 1px rgba(199,125,255,0.4); }
 
 .next-each-card.live {
@@ -622,16 +622,16 @@ main {
   font-variant-numeric: tabular-nums;
 }
 .legend-item.map-broken_moon  .dot { background: var(--broken-moon); box-shadow: 0 0 6px var(--broken-moon); }
-.legend-item.map-kings_canyon .dot { background: var(--kings-canyon); box-shadow: 0 0 6px var(--kings-canyon); }
+.legend-item.map-storm_point .dot { background: var(--storm-point); box-shadow: 0 0 6px var(--storm-point); }
 .legend-item.map-olympus      .dot { background: var(--olympus);      box-shadow: 0 0 6px var(--olympus); }
 .legend-item.map-broken_moon:hover  .dot { box-shadow: 0 0 14px var(--broken-moon); }
-.legend-item.map-kings_canyon:hover .dot { box-shadow: 0 0 14px var(--kings-canyon); }
+.legend-item.map-storm_point:hover .dot { box-shadow: 0 0 14px var(--storm-point); }
 .legend-item.map-olympus:hover      .dot { box-shadow: 0 0 14px var(--olympus); }
 .legend-item.off .dot { box-shadow: none; }
 
 /* アクティブ (フィルタON) 時 マップカラーのほのかなグロー */
 .legend-item.map-broken_moon:not(.off)  { box-shadow: 0 0 0 1px rgba(93,216,255,0.35), 0 0 12px rgba(93,216,255,0.15); }
-.legend-item.map-kings_canyon:not(.off) { box-shadow: 0 0 0 1px rgba(255,107,61,0.35), 0 0 12px rgba(255,107,61,0.15); }
+.legend-item.map-storm_point:not(.off) { box-shadow: 0 0 0 1px rgba(61,214,140,0.35), 0 0 12px rgba(61,214,140,0.15); }
 .legend-item.map-olympus:not(.off)      { box-shadow: 0 0 0 1px rgba(199,125,255,0.35), 0 0 12px rgba(199,125,255,0.15); }
 
 .filter-reset {
@@ -754,7 +754,7 @@ main {
 
 /* マップ別ホバーグロー */
 .slot.map-broken_moon:hover  { box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(93,216,255,0.5),  0 0 24px rgba(93,216,255,0.25); }
-.slot.map-kings_canyon:hover { box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,107,61,0.5),  0 0 24px rgba(255,107,61,0.25); }
+.slot.map-storm_point:hover { box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(61,214,140,0.5),  0 0 24px rgba(61,214,140,0.25); }
 .slot.map-olympus:hover      { box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(199,125,255,0.5), 0 0 24px rgba(199,125,255,0.25); }
 
 .slot-body {
@@ -792,7 +792,7 @@ main {
 }
 
 .slot.map-broken_moon  { border-left-color: var(--broken-moon); }
-.slot.map-kings_canyon { border-left-color: var(--kings-canyon); }
+.slot.map-storm_point { border-left-color: var(--storm-point); }
 .slot.map-olympus      { border-left-color: var(--olympus); }
 
 /* LIVE スロット */
